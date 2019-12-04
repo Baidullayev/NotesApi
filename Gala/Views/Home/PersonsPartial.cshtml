@@ -1,0 +1,235 @@
+﻿@model IEnumerable<Gala.Models.Persons2>
+
+<script>
+    var GlobalObjPersons;
+    ///////////////////////////////
+    //function Search(lastname, firstname, patronymic, birth_date_begin, birth_date_end) {        
+    //    $('#PersonsList').dataTable({
+    //        "destroy": "true",
+    //        "ajax": {
+    //            "type": "POST",
+    //            "url": "SearchPerson",
+    //            "data":function ( d ) {
+    //              return $.extend( {}, d, {
+    //                  "lastname": $("#lastname").val(),
+    //                  "firstname": $("#firstname").val(),
+    //                  "patronymic": $('#patronymic').val(),
+    //                  "birth_date_begin": $('#birth_date_begin').val(),
+    //                  "birth_date_end": $('#birth_date_end').val()
+    //              } );
+    //            },
+    //            "dataSrc": function (json) {
+    //                GlobalObjPersons = json;
+    //                var tr;
+    //                console.log(json);
+
+    //                for (var i = 0; i < json.length; i++) {
+    //                    tr = $('<tr />');
+    //                    tr.append("<td>" + json[i].surname + "</td>");
+    //                    tr.append("<td>" + json[i].firstname + "</td>");
+    //                    tr.append("<td>" + json[i].patronymic + "</td>");
+    //                    var birthDate = formatDate(new Date(json[i].birthDate));
+    //                    tr.append("<td>" + birthDate + "</td>");
+    //                    tr.append("<td><button type=\"button\" class=\"btn btn-info\" onClick=\"ShowItem(" + json[i].iin + ")\")>Просмотр</button></td>");
+    //                    $('table').empty().append(tr);
+    //                }
+    //            }
+    //        }
+    //    });
+
+    //};
+    ///////////////////////////////
+
+    var preparedTable = null;
+
+    function Search(requestType = null,iin = null)
+    {
+        if (preparedTable != null) {
+            preparedTable.clear();
+            preparedTable.destroy();
+        }
+        var data = {requestType: requestType, iin: iin, lastname: $("#lastname").val(), firstname: $("firstanme").val(), patronymic: $("patronymic").val()};
+        //data.push($("#lastname").val());
+        //data.push($("#firstname").val());
+        //data.push($("#patronymic").val());
+        //data.push($("#birth_date_begin").val());
+        //data.push($("#birth_date_end").val());
+        $.ajax({
+            type: "POST",
+            url: "SearchPerson",
+            data: data,
+            success: function (json) {
+                GlobalObjPersons = json;
+                var tr;
+                console.log(json);                
+                if (json != null && json.length > 0) {
+                    for (var i = 0; i < json.length; i++) {
+                        tr = $('<tr />');
+
+                        tr.append("<td>" + json[i].surname + "</td>");
+                        tr.append("<td>" + json[i].firstname + "</td>");
+                        tr.append("<td>" + json[i].patronymic + "</td>");
+                        var birthDate = formatDate(new Date(json[i].birthDate));
+                        tr.append("<td>" + birthDate + "</td>");
+                        tr.append("<td>\
+                            <a id =\"myLink\" href=\"#\" onclick=\"Search('П'," + json[i].iin + ");return false;\">П |</a>\
+                            <a id =\"myLink\" href=\"#\" onclick=\"Search('Р'," + json[i].iin + ");return false;\">Р |</a>\
+                            <a id =\"myLink\" href=\"#\" onclick=\"Search('С'," + json[i].iin + ");return false;\">С</a>  \
+                            <button type =\"button\" class=\"btn btn-info\" onClick=\"ShowItem(" + json[i].iin + ")\")>Просмотр</button></td > ");
+                        $('table').append(tr);
+                    }
+                    tr.append("</tbody>");
+
+                    preparedTable = $('#PersonsList').DataTable();
+                } else {
+                    tr = $('<tr />');
+                    tr.append("<td>" + "Нет данных" + "</td>");
+                    tr.append("<td>" + "" + "</td>");
+                    tr.append("<td>" + "" + "</td>");
+                    tr.append("<td>" + "" + "</td>");
+                    tr.append("<td>" + "" + "</td>");
+                    $('table').append(tr);
+                    preparedTable = $('#PersonsList').DataTable();
+                }
+
+            }
+        })
+
+    };
+
+
+    function AdditionalSearch(type, iin) {
+        if (type == 0) {
+            console.log(iin);
+        } else if (type == 1) {//relatives (пойск родственников)
+
+        } else if (type == 2) {// neighbors(пойск соседей)
+
+        }
+    }
+
+    //$(document).ready(function () {
+        
+    //    $.getJSON("GetPersonsJson",
+    //        function (json) {
+    //            GlobalObjPersons = json;
+    //            var tr;
+    //            console.log(json);
+
+    //            for (var i = 0; i < json.length; i++) {
+    //                tr = $('<tr />');                    
+    //                tr.append("<td>" + json[i].surname + "</td>");
+    //                tr.append("<td>" + json[i].firstname + "</td>");
+    //                tr.append("<td>" + json[i].patronymic + "</td>");
+    //                var birthDate = formatDate(new Date(json[i].birthDate)); 
+    //                tr.append("<td>" + birthDate + "</td>");
+    //                tr.append("<td><button type=\"button\" class=\"btn btn-info\" onClick=\"ShowItem(" + json[i].iin +")\")>Просмотр</button></td>");
+    //                $('table').append(tr);
+    //            }
+    //            $('#PersonsList').DataTable();
+    //        });
+
+    //});
+    function ShowItem(iin) {
+        var titleName;
+        var modalBody = "<table class=\"table\"><tbody>";
+        for (var i = 0; i < GlobalObjPersons.length; i++) {
+            if (GlobalObjPersons[i].iin == iin) {
+                var selectedPerson = GlobalObjPersons[i];
+                titleName = selectedPerson['surname'] + " " + selectedPerson['firstname'] + " " + selectedPerson['patronymic'];
+                for (item in selectedPerson) {
+                    if (selectedPerson[item] != "" && selectedPerson[item] != null) {
+                        if (item == "surname") { continue; }                       
+                        if (item == "firstname") { continue; }   
+                        if (item == "patronymic") { continue; }
+                        if (item == "regionCode" && selectedPerson['regionCodeNavigation'] != null) {
+                            modalBody += "<tr><td>Город</td><td>" + selectedPerson['regionCodeNavigation'].name + "</td></tr>";
+                        }
+                        if (item == "districtCode" && selectedPerson['districtCodeNavigation'] != null) {
+                            modalBody += "<tr><td>Область</td><td>" + selectedPerson['districtCodeNavigation'].name + "</td></tr>";
+                        }
+                        if (item == "birthDate") {                            
+                            modalBody += "<tr><td>Дата рождения</td><td>" + formatDate(new Date(selectedPerson[item])) + "</td></tr>";
+                        }
+                        if (item == "deathDate") {
+                            modalBody += "<tr><td>Дата смерти</td><td>" + formatDate(new Date(selectedPerson[item])) + "</td></tr>";
+                        }
+                        if (item == "iin") {                            
+                            modalBody += "<tr><td>ИИН</td><td>" + selectedPerson[item] + "</td></tr>";
+                        }
+                        if (item == "regAddressStreet") {                            
+                            modalBody += "<tr><td>Улица</td><td>" + selectedPerson[item] + "</td></tr>";
+                        }
+                        if (item == "regAddressBuilding") {                            
+                            modalBody += "<tr><td>Дом</td><td>" + selectedPerson[item] + "</td></tr>";
+                        }
+                        if (item == "regAddressFlat") {                            
+                            modalBody += "<tr><td>квартира</td><td>" + selectedPerson[item] + "</td></tr>";
+                        }
+                        if (item == "regAddressCorpus") {                            
+                            modalBody += "<tr><td>Корпус</td><td>" + selectedPerson[item] + "</td></tr>";
+                        }
+                        if (item == "passpBeginDate") {                            
+                            modalBody += "<tr><td>Дата выдачи паспорта</td><td>" + formatDate(new Date(selectedPerson[item])) + "</td></tr>";
+                        }
+                        if (item == "passpNumber") {                            
+                            modalBody += "<tr><td>Номер паспорта</td><td>" + selectedPerson[item] + "</td></tr>";
+                        }
+                        if (item == "udlNumber") {                            
+                            modalBody += "<tr><td>Номер удостоверения личности</td><td>" + selectedPerson[item] + "</td></tr>";
+                        }
+                        if (item == "udlBeginDate") {                            
+                            modalBody += "<tr><td>Дата выдачи удостоверения личности</td><td>" + formatDate(new Date(selectedPerson[item])) + "</td></tr>";
+                        }
+                        
+                        
+                       // modalBody += "<tr><td>" + item + "</td><td>" + selectedPerson[item] + "</td></tr>";
+
+                       
+                    }
+                }
+               
+
+            }
+        }
+        modalBody += "</tbody></table>";
+
+        $('#myModal').find(".modal-title").text(titleName);
+        $('#myModal').find(".modal-title").html = titleName; 
+        $('#myModal').find(".modal-body").empty();
+        $('#myModal').find(".modal-body").append(modalBody);
+        $('#myModal').modal('show');
+    }
+    function formatDate(date) {
+
+      var dd = date.getDate();
+      if (dd < 10) dd = '0' + dd;
+
+      var mm = date.getMonth() + 1;
+      if (mm < 10) mm = '0' + mm;
+
+      var yyyy = date.getFullYear();      
+
+      return dd + '.' + mm + '.' + yyyy;
+    }
+
+</script>
+<hr />
+<div class="container">
+    <div class="form-horizontal">
+        <table id="PersonsList" class="table table-bordered  table-hover">
+            <thead>
+                <tr>
+                    <th>Фамилия</th>
+                    <th>Имя</th>
+                    <th>Отчество</th>
+                    <th>Дата рождения</th>
+                    <th>Дополнительно</th>
+                </tr>
+            </thead>
+            <tbody>
+            
+        </table>
+    </div>
+</div>
+

@@ -1,0 +1,90 @@
+﻿@model Gala.Models.Persons2
+
+@{
+    ViewData["Title"] = "Search";
+}
+
+<h1>Search</h1>
+
+<h4>Persons2</h4>
+<hr />
+
+
+
+<div class="container" >
+    <div class="col-sm-10">
+        @*<form id="toSearch">*@
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Iin" />
+            <div class="form-group row">
+                <label asp-for="Surname" class="col-sm-2 col-form-label">Фамилия</label>
+                <div class="col-sm-4">
+                    <input asp-for="Surname" id="lastname" class="form-control" />
+
+                    @*<span asp-validation-for="Surname" class="text-danger"></span>*@
+                </div>
+            </div>
+            <div class="form-group row">
+                <label asp-for="Firstname" class="col-sm-2 col-form-label">Имя</label>
+                <div class="col-sm-4">
+                    <input asp-for="Firstname" id="firstname" class="form-control" />
+
+                    @*<span asp-validation-for="Firstname" class="text-danger"></span>*@
+                </div>
+            </div>
+            <div class="form-group row">
+                <label asp-for="Patronymic" class="col-sm-2 col-form-label">Отчество</label>
+                <div class="col-sm-4">
+                    <input asp-for="Patronymic" id="patronymic" class="form-control" />
+                    @*<span asp-validation-for="Patronymic" class="text-danger"></span>*@
+                </div>
+            </div>
+            <div class="form-group row">
+                <label asp-for="BirthDate" class="col-sm-2 col-form-label">Дата рождение    </label>
+                <div class="col-sm-4">
+                    <input asp-for="BirthDate" id="birth_date_begin" placeholder="от" class="form-control" />
+                    <label class="col-sm-4 col-form-label">от : до</label>
+                    <input asp-for="BirthDate" id="birth_date_end" placeholder="до" class="form-control" />
+
+                    @*<span asp-validation-for="BirthDate" class="text-danger"></span>*@
+                </div>
+            </div>
+
+            <div class="form-group" style="text-align:center">
+                <input type="submit" value="Поиск" onclick="Search()" class="btn btn-primary" />
+            </div>
+
+        
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal-title">Modal title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                @*<button type="button" class="btn btn-primary">Закрыть</button>*@
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+    @*<div>
+        <a asp-action="Index">Back to List</a>
+    </div>*@
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("PersonsPartial");}
+}
